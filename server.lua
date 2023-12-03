@@ -1,9 +1,9 @@
 local socket = require('socket')
-local User = require('udp.user')
-local Match = require('udp.match')
 local Json = require('lib.json')
 
-local Events = require('udp.events')
+local User = require('src.user')
+local Match = require('src.match')
+local Events = require('src.events')
 
 local Server = {
 	objects = {},
@@ -17,6 +17,8 @@ function Server:init()
 	self.connection = socket.udp()
 	self.connection:setsockname("*", 9091)
 	self.connection:settimeout(0)
+
+	print('server started')
 
 	Match.server_instance = self
 end

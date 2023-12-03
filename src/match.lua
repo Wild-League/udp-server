@@ -1,4 +1,4 @@
-local Events = require('udp.events')
+local Events = require('src.events')
 
 local Match = {
 	matches = {},
@@ -10,6 +10,7 @@ local Match = {
 function Match:add_user(user)
 	if self.num_matches > 0 then
 		for i,match in ipairs(self.matches) do
+			print('match', #match.players)
 			if #match.players == 1 then
 				table.insert(match.players, user)
 				self:send_message(i, { event = Events.MatchFound })
