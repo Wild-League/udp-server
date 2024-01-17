@@ -16,11 +16,11 @@ local Server = {
 function Server:init()
 	self.connection = socket.udp()
 	self.connection:setsockname("*", 9091)
-	self.connection:settimeout(0)
-
-	print('server started')
+	-- self.connection:settimeout(0)
 
 	Match.server_instance = self
+
+	print('server started')
 end
 
 function Server:receive()
@@ -36,12 +36,27 @@ end
 function Server:process_received_data(data, ip, port)
 	data = Json.decode(data)
 
+	local timestamp = os.time()
+
 	if data.event == Events.Object then
-		-- local id = data.identifier
-		-- self.objects[id] = data.obj
+		if (data.obj.char_x) then
+			data.obj.char_x = 1344 - data.obj.char_x
+		end
 
 		local user = Match:get_other_player(ip, port, 1)
-		self:send({ event=Events.Object, obj=data.obj, identifier=data.identifier }, user.ip, user.port)
+		self:send({ event=Events.EnemyObject, obj=data.obj, identifier=data.identifier, timestamp = timestamp }, user.ip, user.port)
+	end
+
+	if data.event == Events.EnemyObject then
+		local user = Match:get_other_player(ip, port, 1)
+		self:send({ event=Events.Object, obj=data.obj, identifier=data.identifier, timestamp = timestamp }, user.ip, user.port)
+	end
+
+	if data.event == Events.Tower or data.event == Events.EnemyTower then
+		local event = data.event == Events.Tower and Events.EnemyTower or Events.Tower
+
+		local user = Match:get_other_player(ip, port, 1)
+		self:send({ event=event, obj=data.obj, identifier=data.identifier, timestamp = timestamp }, user.ip, user.port)
 	end
 
 	if data.event == Events.Connect then
